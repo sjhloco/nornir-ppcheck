@@ -39,4 +39,8 @@ paloalto:
   connection_options:
     netmiko:
       platform: paloalto_panos
+viptela:
+  connection_options:
+    netmiko:
+      platform: cisco_viptela
 unknown: {}

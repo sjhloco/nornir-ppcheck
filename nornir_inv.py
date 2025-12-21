@@ -1,16 +1,15 @@
-from typing import Any
 import argparse
 import sys
+from typing import TYPE_CHECKING, Any
 
-
+from nornir import InitNornir
+from nornir.core.filter import F
+from nornir_rich.functions import print_inventory  # type: ignore
 from rich.console import Console
 from rich.theme import Theme
 
-
-from nornir import InitNornir
-from nornir.core import Nornir
-from nornir.core.filter import F
-from nornir_rich.functions import print_inventory
+if TYPE_CHECKING:
+    from nornir.core import Nornir
 
 
 # ----------------------------------------------------------------------------
@@ -89,9 +88,9 @@ class BuildInventory:
     # ----------------------------------------------------------------------------
     def filter_inventory(self, args: dict[str, Any], nr: Nornir) -> Nornir:
         filters = []
-        if args.get("hostname") != None:
+        if args.get("hostname") is not None:
             list_hosts = args["hostname"].split()
-            for n in range(10 - len(list_hosts)):
+            for _n in range(10 - len(list_hosts)):
                 list_hosts.append("DUMMY")
             nr = nr.filter(
                 F(name__contains=list_hosts[0])
@@ -106,25 +105,25 @@ class BuildInventory:
                 | F(name__contains=list_hosts[9])
             )
             filters.append(args["hostname"])
-        if args.get("group") != None:
+        if args.get("group") is not None:
             nr = nr.filter(F(groups__any=args["group"]))
             filters.extend(args["group"])
-        if args.get("location") != None:
+        if args.get("location") is not None:
             nr = nr.filter(F(Infra_Location__any=args["location"]))
             filters.extend(args["location"])
-        if args.get("logical") != None:
+        if args.get("logical") is not None:
             nr = nr.filter(F(Infra_Logical_Location__any=args["logical"]))
             filters.extend(args["logical"])
-        if args.get("type") != None:
+        if args.get("type") is not None:
             nr = nr.filter(F(type__any=args["type"]))
             filters.extend(args["type"])
-        if args.get("version") != None:
+        if args.get("version") is not None:
             nr = nr.filter(F(IOSVersion__contains=args["version"]))
             filters.append(args["version"])
 
         # Print and exit if show or show_detail flags set
         num_hosts = len(nr.inventory.hosts.items())
-        if args.get("show", False) == True:
+        if args.get("show", False):
             self.rc.print("[blue]=[/blue]" * 70)
             self.rc.print(
                 f"[i cyan]{num_hosts}[/i cyan] hosts have matched the filters [i cyan]'{', '.join(filters)}'[/i cyan]:"
@@ -134,7 +133,7 @@ class BuildInventory:
                     f"[green]-Host: {each_host}[/green]\t[red]=[/red]  Hostname: {data.hostname}"
                 )
             sys.exit(0)
-        elif args.get("show_detail", False) == True:
+        elif args.get("show_detail", False):
             self.rc.print("[blue]=[/blue]" * 70)
             self.rc.print(
                 f"[i cyan]{num_hosts}[/i cyan] hosts have matched the filters [i cyan]'{', '.join(filters)}'[/i cyan]:"
@@ -145,9 +144,9 @@ class BuildInventory:
             return nr
 
     # ----------------------------------------------------------------------------
-    # 3. DEFAULT_INV: Adds username and password to defaults of the inventory (all devices)
+    # 3. DEFAULT_INV: Adds username and password to defaults of the inventory (fallback for all devices)
     # ----------------------------------------------------------------------------
-    def inventory_defaults(self, nr: Nornir, device: dict[str, str]) -> Nornir:
+    def inventory_defaults(self, nr: Nornir, device: dict[str, Any]) -> Nornir:
         nr.inventory.defaults.username = device["user"]
         nr.inventory.defaults.password = device["pword"]
 

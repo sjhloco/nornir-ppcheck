@@ -4,4 +4,53 @@
 **/.pytest_cache
 **/__pycache__
 **/nornir.log
-# /CH001/output
+
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# environment variables
+.env
+
+# Tool caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache
+
+# Log files
+*.log
+
+# vscode settings
+**/.vscode
+
+# Apple
+**/.DS_Store
+
+
+# Tool caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache
+
+# Log files
+*.log
+
+# vscode settings
+**/.vscode
+
+# Apple
+**/.DS_Store
+
+# TEMP
+TODO
+/CH001/output
+CHxx - Test change
+test/test_main_ai.py
