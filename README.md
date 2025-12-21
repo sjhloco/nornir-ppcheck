@@ -39,7 +39,7 @@ The below table lists the changeable elements of the script, if an element is se
 
 ## Inventory - What devices to run the script against
 
-The first thing to do is refine the filters to limit the inventory to only the required hosts, the filters are based on pre-defined groups (*inventory/group.yml*) and host variables (*inventory/hosts.yml*). Use `-s` (***show***) or `-sd` (***show detail***) and the appropriate filters to display what hosts the filtered inventory holds. ==***You are not running any actions against devices at this stage, just the filtering the inventory***==.
+The first thing to do is refine the filters to limit the inventory to only the required hosts, the filters are based on pre-defined groups (*inventory/group.yml*) and host variables (*inventory/hosts.yml*). Use `-s` (***show***) or `-sd` (***show detail***) and the appropriate filters to display what hosts the filtered inventory holds. ***You are not running any actions against devices at this stage, just the filtering the inventory***.
 
 | Filter | Description | Filter example |
 | ------ | ----------- | ------- |
@@ -127,7 +127,7 @@ uv run main.py -l Netlab -ll Core Access -g iosxe -pos "CHxx - Test change"
 
 The *.html* diff files can be view in a browser, green is added, yellow changed and red deleted. Like any diff the formatting isn’t 100% perfect but gives you a good idea of what has changed. If for some reason you run `pre` more than once rename or remove the unneeded files from the output folder before running the post-checks as it will only compare the new output filess against the next oldest files.
 
-IMAGE OF DIFF
+<img width="1335" height="765" alt="Image" src="https://github.com/user-attachments/assets/82c45e1e-6eea-4e56-b5bf-64495d22932a" />
 
 ### Extra Information
 
@@ -135,31 +135,25 @@ The `pre` and `pos` flags just combine multiple actions into the one command, an
 
 | runtime          | Description |
 | -------------- | ----------- |
-| `-u` | Overrides the ***Network device username*** set by env vars and/or hardcoded variables |
 | `-prt` | ***Prints*** command outputs (*cmd_print*), requires name of the change directory or files full path |
 | `-vtl` | ***Saves vital*** command outputs (*cmd_vital*) to file, requires name of the change directory |
 | `-dtl` | ***Saves detail*** command outputs (*cmd_detail*) to file, requires name of the change directory |
 | `-com` | ***Compares*** 2 files to create a HTML file, requires name of the change directory and two file names (that are located in the change directory) |
-| `-pre` | Runs *print*, *save vital* and *save_detail* |
-| `-pos` | Runs *print*, *save vital* and *compare* |
 
 ## Example outputs
 
 - **Filters:** Filter down to specific hosts or collection of hosts based on *hostname, group, logical location, etc*
-  
-  IMAGE of filter
+  <img width="1043" height="128" alt="Image" src="https://github.com/user-attachments/assets/a60b6064-3613-4955-9f33-f45e5cce9bc6" />
+
 
 - **Print commands to screen (prt):** Runs a list of commands and prints the output to screen
-
-  Image of prt
+  <img width="1248" height="181" alt="Image" src="https://github.com/user-attachments/assets/15c8e6ba-2037-40a7-a60a-dfa2cd8ca2a0" />
 
 - **pre-test(pre):** Runs *print*, *save vital* and *save_detail* (and saves *running config* if enabled)
-
-  Image of pre
+  <img width="1248" height="181" alt="Image" src="https://github.com/user-attachments/assets/0c6b952e-76e3-4d7d-8780-1782d98adba2" />
   
 - **post-test(pos):** Runs *print*, *save vital* and *compare* against last two vital files (and *running config* if enabled)
-
-  Image of pos
+  <img width="1245" height="435" alt="Image" src="https://github.com/user-attachments/assets/85a89931-2d8c-4ed4-887f-427424a29b6d" />
 
 <!--
 ## Unit testing
