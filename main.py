@@ -7,9 +7,10 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 import yaml
+from deepmerge import always_merger
 from nornir.core.task import Result, Task
 from nornir_netmiko.tasks import netmiko_send_command  # type: ignore
 from nornir_rich.functions import print_result  # type: ignore
@@ -25,6 +26,13 @@ if TYPE_CHECKING:
     from nornir_inv import BuildInventory
 
 
+from nornir_validate import (
+    generate_val_file,
+    print_result_gvf,
+    print_result_val,
+    validate,
+)
+
 # ----------------------------------------------------------------------------
 # VARIABLES: Hardcoded variables to allow for further customisation (mainly naming)
 # ----------------------------------------------------------------------------
@@ -36,10 +44,9 @@ inventory = (
 )
 # Folder that stores reports and output saved to file
 output_folder = "output"
-# TBD: For future use with nornir_validate
-# input_val_file: str = "input_val.yml"
-# TBD: Default project directory name if none is specified at run time (add to git ignore) - always needs a dir so no need for this
-# project_dir = "PP_CHECK"
+# Folder that stores validation files
+val_files_folder = "val_files"
+
 
 # ----------------------------------------------------------------------------
 # ENV VARS: Either set as env vars or fallback to defaults
@@ -52,6 +59,8 @@ DEVICE_USER = os.environ.get("DEVICE_USER", default_user)
 DEVICE_PWORD = os.environ.get("DEVICE_PWORD", None)
 # File in project folder containing cmds to run (env_var >> project_dir/input_cmds.yml)
 INPUT_CMD_FILE = os.environ.get("INPUT_CMD_FILE", "input_cmds.yml")
+# File in project folder containing index to build validation file from (env_var >> project_dir/input_index.yml)
+INPUT_INDEX_FILE = os.environ.get("INPUT_INDEX_FILE", "input_index.yml")
 
 
 # ----------------------------------------------------------------------------
@@ -87,7 +96,22 @@ class InputValidate:
         return output_fldr
 
     # ----------------------------------------------------------------------------
-    # HELPER: Validates input files contents are of the correct format.
+    # HELPER: Get Path for validation files folder, if it doesn't already exist creates it.
+    # ----------------------------------------------------------------------------
+    def _get_val_files_fldr(self, run_type: str, file_path: str | Path) -> Path:
+        working_dir = BASE_DIRECTORY / file_path
+        if not working_dir.exists():
+            self.rc.print(
+                f":x: The '{run_type}' working directory {str(working_dir)} does not exist"
+            )
+            sys.exit(1)
+        val_files_fldr = working_dir / val_files_folder
+        # Create validation files folder if doesn't exist
+        val_files_fldr.mkdir(parents=True, exist_ok=True)
+        return val_files_fldr
+
+    # ----------------------------------------------------------------------------
+    # HELPER: Validates input files contents are of the correct format (structure).
     # ----------------------------------------------------------------------------
     def _val_input_file(
         self, run_type: str, input_file: str, input_data: dict[str, Any]
@@ -95,15 +119,53 @@ class InputValidate:
         if input_data is None:
             self.rc.print(f":x: The '{run_type}' input file {input_file} is empty")
             sys.exit(1)
-        elif (
-            not isinstance(input_data.get("hosts"), dict)
-            and not isinstance(input_data.get("groups"), dict)
-            and not isinstance(input_data.get("all"), dict)
-        ):
+        required_keys = any(
+            isinstance(input_data.get(key), dict) for key in ("hosts", "groups", "all")
+        )
+        if not required_keys:
             self.rc.print(
                 f":x: {input_file} must have at least one [i]hosts, groups[/i] or [i]all[/i] dictionary"
             )
             sys.exit(1)
+
+    # ----------------------------------------------------------------------------
+    # HELPER: Ensures is at least one val file in val_files folder, if more than 1 merges them into one file
+    # ----------------------------------------------------------------------------
+    def _get_merge_val_files(self, val_files_fldr: Path) -> dict[str, dict[str, Any]]:
+        input_data: dict[str, dict[str, Any]] = {"all": {}, "groups": {}, "hosts": {}}
+
+        # FILES: Gather all files in val_files folder or error if none:
+        all_files = list(Path(val_files_fldr).glob("*.yml"))
+        if not all_files:
+            print(f"❌ There are no .yml validation files in {val_files_fldr}")
+            sys.exit(1)
+
+        for file_path in all_files:
+            with open(file_path) as f:
+                tmp_data = yaml.load(f, Loader=yaml.FullLoader)
+            # ERR: Errors based on whether input file correctly formatted
+            self._val_input_file("validate", str(file_path), tmp_data)
+
+            # MERGE: Deepmerge handles the merging of all, hosts, and groups sections
+            if "all" in tmp_data:
+                # ALL: Direct merge for 'all' section - modifies target in place (is only 1 top layer dict)
+                always_merger.merge(input_data["all"], tmp_data["all"])
+            # HST/GRP: Merge each sub-group, nested dict of grp_name or host_name
+            for section in ("hosts", "groups"):
+                if section in tmp_data:
+                    for sec_name, feat in tmp_data[section].items():
+                        if sec_name not in input_data[section]:
+                            input_data[section][sec_name] = feat
+                        else:
+                            always_merger.merge(input_data[section][sec_name], feat)
+        # Verify that is data in at least one section from the files
+        if all(len(input_data[key]) == 0 for key in ("all", "groups", "hosts")):
+            print(
+                f"❌ None of the validation files in {val_files_fldr} have all, groups or hosts dictionaries"
+            )
+            sys.exit(1)
+
+        return input_data
 
     # ----------------------------------------------------------------------------
     # 1a. ARGS: Processes run time flags and arguments, adds these additional args to those from nornir_inv.py.
@@ -133,12 +195,6 @@ class InputValidate:
             nargs=1,
             help="Name of change directory where to save files created from detail command outputs",
         )
-        # TBD: For future use with nornir_validate
-        # args.add_argument(
-        #     "-val",
-        #     "--validate",
-        #     help="Name of change folder directory where to save compliance report",
-        # )
         args.add_argument(
             "-cmp",
             "--compare",
@@ -157,6 +213,18 @@ class InputValidate:
             nargs=1,
             help="Name of change directory, runs print, vital_save_file and compare (of vital)",
         )
+        args.add_argument(
+            "-gvf",
+            "--gen_val_file",
+            nargs=1,
+            help="Name of change directory where index file is and validation input files will be saved",
+        )
+        args.add_argument(
+            "-val",
+            "--validate",
+            nargs=1,
+            help="Name of change directory (where val file is and to save compliance report) or direct path to validation input file",
+        )
         return vars(args.parse_args())
 
     # ----------------------------------------------------------------------------
@@ -170,7 +238,8 @@ class InputValidate:
             "vital_save",
             "detail_save",
             "compare",
-            # "validate",
+            "validate",
+            "gen_val_file",
             "pre_test",
             "post_test",
         ]
@@ -201,7 +270,7 @@ class InputValidate:
         return dict(output_fldr=output_fldr, cmp_file1=cmp_file1, cmp_file2=cmp_file2)
 
     # ----------------------------------------------------------------------------
-    # 1d. NOT_COMPARE: For all other runtime args gather/ validate working dir path, load input file and validate contents.
+    # 1d. NOT_COMPARE: For all other runtime args (except validate) gather/ validate working dir path, load input file and validate contents.
     # ----------------------------------------------------------------------------
     def noncompare_arg(self, run_type: str, file_path: list[str]) -> dict[str, Any]:
         # PRT: If is 'print' and a single input file (not directory) create input and output file path (output wont be used)
@@ -225,7 +294,55 @@ class InputValidate:
         )
 
     # ----------------------------------------------------------------------------
-    # 1e. USER_PASS: Gathers username/password checking various input options.
+    # 1e. VAL: For gen_val_file/validate gather and validate working dir path, load input files and validate contents.
+    # ----------------------------------------------------------------------------
+    def val_arg(self, run_type: str, file_path: list[str]) -> dict[str, Any]:
+        # FULL_PATH: If full path for index or validate file create file and folder path variables (output for val to save reports, val for gvf to save val files)
+        if file_path[0].endswith((".yml", ".yaml")):
+            input_file = Path(file_path[0])
+            output_fldr = Path("/dev/null")  # Doesn't need output folder
+            if run_type == "gen_val_file":
+                val_files_fldr = self._get_val_files_fldr(
+                    run_type, str(input_file.parent)
+                )
+            elif run_type == "validate":
+                val_files_fldr = Path("/dev/null")  # Doesn't need val files folder
+
+            # ERR/LOAD: Loads input file and checks that its contents are correctly formatted
+            if not input_file.exists():
+                self._err_missing_files(run_type, [str(input_file)])
+            elif input_file.exists():
+                with open(input_file) as file_content:
+                    input_data = yaml.load(file_content, Loader=yaml.FullLoader)
+                self._val_input_file(run_type, str(input_file), input_data)
+
+        # GVF_DIR: If directory and GVF create file and val_file folder path variables (dont need output folder so dummy), if no index file runs with nornir-validate default
+        elif run_type == "gen_val_file":
+            val_files_fldr = self._get_val_files_fldr(run_type, file_path[0])
+            output_fldr = Path("/dev/null")  # Dummy path as not used in gvf
+            input_file = val_files_fldr.parent / INPUT_INDEX_FILE
+            # ERR/LOAD: If input file exists loads and that its contents are correctly formatted, if not exist returns empty dict to run with nornir-validate default
+            if input_file.exists():
+                with open(input_file) as file_content:
+                    input_data = yaml.load(file_content, Loader=yaml.FullLoader)
+                self._val_input_file(run_type, str(input_file), input_data)
+            else:
+                input_data = {}
+
+        # VAL_DIR: If directory and VAL create output folder path variables
+        else:
+            output_fldr = self._get_output_fldr(run_type, file_path[0])
+            val_files_fldr = self._get_val_files_fldr(run_type, file_path[0])
+            input_data = self._get_merge_val_files(val_files_fldr)
+
+        return dict(
+            output_fldr=output_fldr,
+            val_files_fldr=val_files_fldr,
+            input_data=input_data,
+        )
+
+    # ----------------------------------------------------------------------------
+    # 1f. USER_PASS: Gathers username/password checking various input options.
     # ----------------------------------------------------------------------------
     def get_user_pass(self, args: dict[str, Any]) -> dict[str, Any]:
         # USER: Check for username in this order: args (-u), env var, default_username (admin)
@@ -311,7 +428,7 @@ class NornirEngine:
             result.append(f"⚠️  There were no commands to run for: {empties}")
 
         if len(result) != 0:
-            # Removes dummy entries (labled as 'empty') from not saving cmds to file
+            # Removes dummy entries (labelled as 'empty') from not saving cmds to file
             with contextlib.suppress(ValueError):
                 result.remove("empty")
             return Result(host=task.host, result="\n".join(result))
@@ -322,29 +439,58 @@ class NornirEngine:
     # 2a. Task engine to run nornir task for commands and prints result
     # ----------------------------------------------------------------------------
     def task_engine(self, run_type: str, data: dict[str, Any]) -> None:
-        run_type = run_type.replace("_save", "")
-        # 2b. The parent nornir task in which the cmd_engine tuns the nornir sub-tasks
-        if run_type != "validate":
+        # 2a. Runs imported nonrir-validate tasks
+        if run_type == "gen_val_file":
+            # GVF without user defined input index file (uses nornir-validate default)
+            if len(data["input_data"]) == 0:
+                # result = self.nr_inv.run(task=generate_val_file)
+                result = self.nr_inv.run(
+                    name=f"{'Generate Validation Files'}",
+                    task=generate_val_file,
+                    directory=str(data["val_files_fldr"]),
+                )
+            # GVF with user defined index file
+            else:
+                result = self.nr_inv.run(
+                    name=f"{'Generate Validation Files'}",
+                    task=generate_val_file,
+                    input_data=data["input_data"],
+                    directory=str(data["val_files_fldr"]),
+                )
+            print_result_gvf(result, self.nr_inv)
+            ## Use instead of 'print_result_gvf'` if troubleshooting 'gen_val_file'
+            # from nornir_rich.functions import print_result
+            # print_result(result)
+        elif run_type == "validate":
+            # EXACT_FILE: When validating exact file path pass/fail report printed to screen and not saved
+            if str(data.get("output_fldr", "")) == "/dev/null":
+                result = self.nr_inv.run(
+                    name=f"{'Compliance Report'}",
+                    task=validate,
+                    input_data=data["input_data"],
+                    print_report=True,
+                )
+            else:
+                # VAL_FLDR: When using change_fldr/val_fldr of files saves report and only prints if it fails
+                result = self.nr_inv.run(
+                    name=f"{'Compliance Report'}",
+                    task=validate,
+                    input_data=data["input_data"],
+                    save_report=str(data["output_fldr"]),
+                )
+            print_result_val(result)
+
+        # 2b. The parent nornir task in which the cmd_engine runs the nornir sub-tasks
+        else:
+            run_type = run_type.replace("_save", "")
             result = self.nr_inv.run(
                 name=f"{run_type.upper()} command output",
                 task=self.cmd_engine,
                 data=data,
                 run_type=run_type,
             )
-        # TBD: For future use with nornir_validate
-        # elif run_type == "validate":
-        #     result = self.nr_inv.run(
-        #         task=validate_task,
-        #         input_data=data["input_file"],
-        #         directory=data["output_fldr"],
-        #     )
-        # Only prints out result if commands where run against a device
-        if result[list(result.keys())[0]].result != "Nothing run":
-            # Adds report information (report_text) if nr_validate has been run
-            try:
-                _ = result[list(result.keys())[0]].report_text
-                print_result(result, vars=["result", "report_text"])
-            except AttributeError:
+            # Only prints out result if commands where run against a device
+            if result[list(result.keys())[0]].result != "Nothing run":
                 # Uses my custom version of nornir-rich to delete empty results when run with prt flag
                 print_result(result, vars=["result"])
 
@@ -499,11 +645,16 @@ def main() -> None:
     # 1b. Get the run type (flag used), provide user feedback if no runtime flag specified
     run_type, file_path = input_val.get_run_type(args)
 
+    # 1e/f. VAL: Validate input or index files exist and are correct format, gets device creds
+    if run_type == "gen_val_file" or run_type == "validate":
+        data = input_val.val_arg(run_type, file_path)
+        device = input_val.get_user_pass(args)
+
     # 1c. CMP: Validate directories and files exist, doesn't need device creds
-    if run_type == "compare":
+    elif run_type == "compare":
         data = input_val.compare_arg(file_path)
         device = dict(user=None, pword=None)
-    # 1d/e. OTHER: Validates the input file exists, is correct format and gets device creds
+    # 1d/f. OTHER: Validates the input file exists, is correct format and gets device creds
     elif run_type is not None:
         data = input_val.noncompare_arg(run_type, file_path)
         device = input_val.get_user_pass(args)

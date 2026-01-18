@@ -6,13 +6,12 @@ readme = "README.md"
 requires-python = ">=3.14"
 
 dependencies = [
+    "deepmerge>=2.0",
     "nornir>=3.5.0",
-    "nornir-netmiko>=1.0.1",
-    "nornir-rich",
-    "nornir-utils>=0.2.0",
-    "nornir-validate>=0.2.3",
+    "nornir-validate>=0.3.0",
     "pyaml>=25.7.0",
-    "types-pyyaml>=6.0.12.20250915",
+    "ntc-templates",
+    "nornir-rich",
 ]
 
 [dependency-groups]
@@ -77,4 +76,5 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 
 [tool.uv.sources]
+ntc-templates = { git = "https://github.com/networktocode/ntc-templates.git", rev = "286039e" }
 nornir-rich = { git = "https://github.com/sjhloco/nornir_rich", rev = "format_string_result" }

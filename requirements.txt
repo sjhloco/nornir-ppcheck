@@ -6,6 +6,7 @@ charset-normalizer==3.4.4
 colorama==0.4.6
 cryptography==46.0.3
 decorator==5.2.1
+deepmerge==2.0
 executing==2.2.1
 idna==3.11
 iniconfig==2.3.0
@@ -34,8 +35,8 @@ nornir-jinja2==0.2.0
 nornir-netmiko==1.0.1
 nornir-rich @ git+https://github.com/sjhloco/nornir_rich@cf2674259c24d001b71831482840b9ebd97caf21
 nornir-utils==0.2.0
-nornir-validate==0.2.3
-ntc-templates==8.1.0
+nornir-validate==0.3.0
+ntc-templates @ git+https://github.com/networktocode/ntc-templates.git@286039ef3a4c9b5899ef35eb7e662f44c7328576
 packaging==25.0
 paramiko==4.0.0
 parso==0.8.5
@@ -50,7 +51,7 @@ pycparser==2.23
 pyeapi==1.0.4
 pygments==2.19.2
 pynacl==1.6.1
-pyparsing==3.2.5
+pyparsing==3.3.1
 pyserial==3.5
 pytest==9.0.2
 pyyaml==6.0.3

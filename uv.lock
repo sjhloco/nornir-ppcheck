@@ -204,6 +204,15 @@ wheels = [
 ]
 
 [[package]]
+name = "deepmerge"
+version = "2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a8/3a/b0ba594708f1ad0bc735884b3ad854d3ca3bdc1d741e56e40bbda6263499/deepmerge-2.0.tar.gz", hash = "sha256:5c3d86081fbebd04dd5de03626a0607b809a98fb6ccba5770b62466fe940ff20", size = 19890, upload-time = "2024-08-30T05:31:50.308Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2d/82/e5d2c1c67d19841e9edc74954c827444ae826978499bde3dfc1d007c8c11/deepmerge-2.0-py3-none-any.whl", hash = "sha256:6de9ce507115cff0bed95ff0ce9ecc31088ef50cbdf09bc90a09349a318b3d00", size = 13475, upload-time = "2024-08-30T05:31:48.659Z" },
+]
+
+[[package]]
 name = "executing"
 version = "2.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -616,13 +625,12 @@ name = "nornir-ppcheck"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "deepmerge" },
     { name = "nornir" },
-    { name = "nornir-netmiko" },
     { name = "nornir-rich" },
-    { name = "nornir-utils" },
     { name = "nornir-validate" },
+    { name = "ntc-templates" },
     { name = "pyaml" },
-    { name = "types-pyyaml" },
 ]
 
 [package.dev-dependencies]
@@ -635,13 +643,12 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "deepmerge", specifier = ">=2.0" },
     { name = "nornir", specifier = ">=3.5.0" },
-    { name = "nornir-netmiko", specifier = ">=1.0.1" },
     { name = "nornir-rich", git = "https://github.com/sjhloco/nornir_rich?rev=format_string_result" },
-    { name = "nornir-utils", specifier = ">=0.2.0" },
-    { name = "nornir-validate", specifier = ">=0.2.3" },
+    { name = "nornir-validate", specifier = ">=0.3.0" },
+    { name = "ntc-templates", git = "https://github.com/networktocode/ntc-templates.git?rev=286039e" },
     { name = "pyaml", specifier = ">=25.7.0" },
-    { name = "types-pyyaml", specifier = ">=6.0.12.20250915" },
 ]
 
 [package.metadata.requires-dev]
@@ -676,7 +683,7 @@ wheels = [
 
 [[package]]
 name = "nornir-validate"
-version = "0.2.3"
+version = "0.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "napalm" },
@@ -688,21 +695,17 @@ dependencies = [
     { name = "pyaml" },
     { name = "types-pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3c/82/f1ccdca49a4b55a76cf805527b7ea2c1c3efd2704b180d7e55a25f3c5b95/nornir_validate-0.2.3.tar.gz", hash = "sha256:66a704937be2888a600f2d67caa4e503b3a9dd93781da0a143a789df69cdd041", size = 34055, upload-time = "2025-12-06T21:57:02.892Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a3/88/374a26a4639f1d28ade60fa37aa9cfadca9cffc8b2c4a3713d83d319e14f/nornir_validate-0.3.0.tar.gz", hash = "sha256:f65de91029bcd62d0bac0fcba9550f5366b74b7ee8be492838d293883eb029d0", size = 34832, upload-time = "2026-01-03T23:33:30.253Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/da/07/c920cd469aab595c47663cf5a6a0ee21349aebfd58180f595b0d278c96d6/nornir_validate-0.2.3-py3-none-any.whl", hash = "sha256:a4bb47b4433e73b4c6268ed3efc80a2334f805b00855d8956a6aea7e7679aae7", size = 70573, upload-time = "2025-12-06T21:57:01.689Z" },
+    { url = "https://files.pythonhosted.org/packages/c9/58/76cee6d2452aa4751a45d7b1ccf2bea9bf0c9ea88a6eec4336da880bb981/nornir_validate-0.3.0-py3-none-any.whl", hash = "sha256:c73e1d70cbd40da588688b988c572568a243d9a768cef542219fb3d8e956aaa1", size = 71339, upload-time = "2026-01-03T23:33:28.93Z" },
 ]
 
 [[package]]
 name = "ntc-templates"
 version = "8.1.0"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/networktocode/ntc-templates.git?rev=286039e#286039ef3a4c9b5899ef35eb7e662f44c7328576" }
 dependencies = [
     { name = "textfsm" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/d6/0c/decd784b5969ddfed7e41d95baaa309f31c896bd7ed22d3a6d29ec1117a1/ntc_templates-8.1.0.tar.gz", hash = "sha256:e570a5bb4ee829d62bfdce3fb46045a40aaa176b134aa0db21542d6518ca4be7", size = 313051, upload-time = "2025-09-22T21:02:55.83Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/6d/925c3cd513b13569f32f8a9330b061f594dcde6ca946fb26dce886868b74/ntc_templates-8.1.0-py3-none-any.whl", hash = "sha256:6cea8fdb17e8c72bd7a89bf21a94c184f241ce33c34b074570059d710318acaf", size = 623343, upload-time = "2025-09-22T21:02:53.959Z" },
 ]
 
 [[package]]
@@ -876,11 +879,11 @@ wheels = [
 
 [[package]]
 name = "pyparsing"
-version = "3.2.5"
+version = "3.3.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f2/a5/181488fc2b9d093e3972d2a472855aae8a03f000592dbfce716a512b3359/pyparsing-3.2.5.tar.gz", hash = "sha256:2df8d5b7b2802ef88e8d016a2eb9c7aeaa923529cd251ed0fe4608275d4105b6", size = 1099274, upload-time = "2025-09-21T04:11:06.277Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/33/c1/1d9de9aeaa1b89b0186e5fe23294ff6517fce1bc69149185577cd31016b2/pyparsing-3.3.1.tar.gz", hash = "sha256:47fad0f17ac1e2cad3de3b458570fbc9b03560aa029ed5e16ee5554da9a2251c", size = 1550512, upload-time = "2025-12-23T03:14:04.391Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/5e/1aa9a93198c6b64513c9d7752de7422c06402de6600a8767da1524f9570b/pyparsing-3.2.5-py3-none-any.whl", hash = "sha256:e38a4f02064cf41fe6593d328d0512495ad1f3d8a91c4f73fc401b3079a59a5e", size = 113890, upload-time = "2025-09-21T04:11:04.117Z" },
+    { url = "https://files.pythonhosted.org/packages/8b/40/2614036cdd416452f5bf98ec037f38a1afb17f327cb8e6b652d4729e0af8/pyparsing-3.3.1-py3-none-any.whl", hash = "sha256:023b5e7e5520ad96642e2c6db4cb683d3970bd640cdf7115049a6e9c3682df82", size = 121793, upload-time = "2025-12-23T03:14:02.103Z" },
 ]
 
 [[package]]
