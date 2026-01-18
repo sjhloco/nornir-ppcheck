@@ -194,48 +194,34 @@ The compliance report is generated based off the validation files, there are two
 - **Compliance report (val):** Creates a compliance report based off validation files
   <img width="1245" height="795" alt="Image" src="https://github.com/user-attachments/assets/fc4a0804-892c-463d-8828-cab4d6c520ab" />
 
-<!--
-## Unit testing
+## Test suite
 
-Pytest unit testing is split into two classes to test inventory settings validation and Nornir interactions
+The script uses the following tools for testing:
 
-```python
-pytest test/test_main.py::TestInputValidate -v
-pytest test/test_main.py::TestNornirCommands -v
-pytest test/test_main.py -v
+- [Ruff Formatter](https://docs.astral.sh/ruff/formatter/) is a code formatter for Python that focuses on speed and correctness, similar to black but with a different design philosophy
+- [Ruff Linter](https://docs.astral.sh/ruff/linter/) is an extremely fast Python linter designed as a drop-in replacement for Flake8, isort, pydocstyle, pyupgrade, autoflake, and more
+- [MyPy](https://mypy-lang.org) performs static type checking
+- [PyTest](https://docs.pytest.org/en/stable/) unit-tests validates core nornir-validate functions and all of the feature templates
+
+```bash
+uv run ruff format --check .
+uv run ruff check .
+uv run mypy .
+uv run pytest -v
 ```
 
- | `-val` | Creates a compliance report and saves to file, requires name of the change directory
+Pytest unit testing is split into different classes to allow for the different script elements to be tested  if need be.
 
-## Input files
-
-There are two types of input files that can be used with the script, one to print or save command output (*input_cmd.yml*) and the other for validation (*input_val.yml*).
-
- ### Input validate *(input_val.yml)*
-
-If there are any conflicts between the objects *groups* takes precedence over *all* and *hosts* takes precedence over *groups*. This example validates port-channels on all devices, ACLs on all IOS devices and OSPF neighbors just on HME-SWI-VSS01.
-
-```yaml
-hosts:
-  HME-SWI-VSS01:
-    ospf:
-      nbrs: [192.168.255.1]
-groups:
-  ios:
-    acl:
-      - name: TEST_SSH_ACCESS
-        ace:
-          - { remark: MGMT Access - VLAN10 }
-          - { permit: 10.17.10.0/24 }
-          - { remark: Citrix Access }
-          - { permit: 10.10.10.10/32 }
-          - { deny: any }
-all:
-  po:
-    - name: Po3
-      mode: LACP
-      members: [Gi0/15, Gi0/16]
-
-**validate:** Creates a compliance report that is saved in the output directory. If compliance fails the report will also be be printed to screen
-
-``` -->
+```bash
+uv run pytest test/test_main.py::TestInputValidateFileValidation -v
+uv run pytest test/test_main.py::TestInputValidateMergeValFiles -v
+uv run pytest test/test_main.py::TestInputValidateArgumentProcessing -v
+uv run pytest test/test_main.py::TestInputValidateNoncompareArg -v
+uv run pytest test/test_main.py::TestInputValidateValArg -v
+uv run pytest test/test_main.py::TestInputValidateCredentials -v
+uv run pytest test/test_main.py::TestNornirCommandsOrganization -v
+uv run pytest test/test_main.py::TestNornirCommandsDiffCreation -v
+uv run pytest test/test_main.py::TestNornirCommandsRunCommands -v
+uv run pytest test/test_main.py::TestNornirCommandsSaveCommands -v
+uv run pytest test/test_main.py::TestIntegration -v
+```
