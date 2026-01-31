@@ -183,10 +183,10 @@ The compliance report is generated based off the validation files, there are two
   <img width="1248" height="181" alt="Image" src="https://github.com/user-attachments/assets/15c8e6ba-2037-40a7-a60a-dfa2cd8ca2a0" />
 
 - **pre-test (pre):** Runs *print*, *save vital* and *save_detail* (and saves *running config* if enabled)
-  <img width="1248" height="181" alt="Image" src="https://github.com/user-attachments/assets/0c6b952e-76e3-4d7d-8780-1782d98adba2" />
+  <img width="1245" height="435" alt="Image" src="https://github.com/user-attachments/assets/4f71d678-2cd8-4c8d-9ca4-4592935f7cf6" />
   
 - **post-test (pos):** Runs *print*, *save vital* and *compare* against last two vital files (and *running config* if enabled)
-  <img width="1245" height="435" alt="Image" src="https://github.com/user-attachments/assets/85a89931-2d8c-4ed4-887f-427424a29b6d" />
+  <img width="1245" height="435" alt="Image" src="https://github.com/user-attachments/assets/d0d41f8c-f444-427d-addf-2a3ceed5f734" />
 
 - **Generate validation files (gvf):** Generates a validation file for all enabled features
   <img width="1245" height="435" alt="Image" src="https://github.com/user-attachments/assets/72815e91-45f9-4121-88e0-87b17af2b857" />

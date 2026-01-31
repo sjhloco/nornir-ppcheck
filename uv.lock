@@ -645,8 +645,8 @@ dev = [
 requires-dist = [
     { name = "deepmerge", specifier = ">=2.0" },
     { name = "nornir", specifier = ">=3.5.0" },
-    { name = "nornir-rich", git = "https://github.com/sjhloco/nornir_rich?rev=format_string_result" },
-    { name = "nornir-validate", specifier = ">=0.3.0" },
+    { name = "nornir-rich", git = "https://github.com/sjhloco/nornir_rich?rev=per_panel_var" },
+    { name = "nornir-validate", specifier = ">=0.3.1" },
     { name = "ntc-templates", git = "https://github.com/networktocode/ntc-templates.git?rev=286039e" },
     { name = "pyaml", specifier = ">=25.7.0" },
 ]
@@ -662,7 +662,7 @@ dev = [
 [[package]]
 name = "nornir-rich"
 version = "0.2.0"
-source = { git = "https://github.com/sjhloco/nornir_rich?rev=format_string_result#cf2674259c24d001b71831482840b9ebd97caf21" }
+source = { git = "https://github.com/sjhloco/nornir_rich?rev=per_panel_var#c6131cb36adbd98244d59380cb4b7de6adc0836c" }
 dependencies = [
     { name = "nornir" },
     { name = "rich" },
@@ -683,7 +683,7 @@ wheels = [
 
 [[package]]
 name = "nornir-validate"
-version = "0.3.0"
+version = "0.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "napalm" },
@@ -695,9 +695,9 @@ dependencies = [
     { name = "pyaml" },
     { name = "types-pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a3/88/374a26a4639f1d28ade60fa37aa9cfadca9cffc8b2c4a3713d83d319e14f/nornir_validate-0.3.0.tar.gz", hash = "sha256:f65de91029bcd62d0bac0fcba9550f5366b74b7ee8be492838d293883eb029d0", size = 34832, upload-time = "2026-01-03T23:33:30.253Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9c/29/ae55dea5b97993f716e00cc450065db245ef9695119b7be9fb5fa49a4a96/nornir_validate-0.3.1.tar.gz", hash = "sha256:22549958cda138f4cb32a0f1cf61770d99b3068500f1e8bd4bc79243ae9bdb1e", size = 34961, upload-time = "2026-01-31T19:15:22.235Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c9/58/76cee6d2452aa4751a45d7b1ccf2bea9bf0c9ea88a6eec4336da880bb981/nornir_validate-0.3.0-py3-none-any.whl", hash = "sha256:c73e1d70cbd40da588688b988c572568a243d9a768cef542219fb3d8e956aaa1", size = 71339, upload-time = "2026-01-03T23:33:28.93Z" },
+    { url = "https://files.pythonhosted.org/packages/ef/54/be60b71d48cee96e16a81cd67850b0aca9b7a35745f0f6f7dca5c9c9b625/nornir_validate-0.3.1-py3-none-any.whl", hash = "sha256:3935a4b4011c9128ea0f4ddf176f1302f54842ef3ee611903bc6979c3e21b0a0", size = 71459, upload-time = "2026-01-31T19:15:20.593Z" },
 ]
 
 [[package]]
