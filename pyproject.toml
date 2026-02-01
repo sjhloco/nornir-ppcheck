@@ -8,7 +8,7 @@ requires-python = ">=3.14"
 dependencies = [
     "deepmerge>=2.0",
     "nornir>=3.5.0",
-    "nornir-validate>=0.3.1",
+    "nornir-validate>=0.3.2",
     "pyaml>=25.7.0",
     "ntc-templates",
     "nornir-rich",

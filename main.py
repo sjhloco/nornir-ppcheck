@@ -492,7 +492,9 @@ class NornirEngine:
             # Only prints out result if commands where run against a device
             if result[list(result.keys())[0]].result != "Nothing run":
                 # Uses my custom version of nornir-rich to delete empty results when run with prt flag
-                print_result(result, vars=["result"], line_breaks=True)
+                print_result(
+                    result, vars=["result"], line_breaks=True, print_empty_task=False
+                )
 
 
 # ----------------------------------------------------------------------------
