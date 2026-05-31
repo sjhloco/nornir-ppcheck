@@ -8,10 +8,8 @@ requires-python = ">=3.14"
 dependencies = [
     "deepmerge>=2.0",
     "nornir>=3.5.0",
-    "nornir-validate>=0.3.2",
+    "nornir-validate>=0.4.1",
     "pyaml>=25.7.0",
-    "ntc-templates",
-    "nornir-rich",
 ]
 
 [dependency-groups]
@@ -74,7 +72,3 @@ convention = "google"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-
-[tool.uv.sources]
-ntc-templates = { git = "https://github.com/networktocode/ntc-templates.git", rev = "286039e" }
-nornir-rich = { git = "https://github.com/sjhloco/nornir_rich", rev = "per_panel_var" }

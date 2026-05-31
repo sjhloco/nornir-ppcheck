@@ -155,7 +155,7 @@ Nornir-validate produces a compliance report by comparing the devices actual sta
 
 Automatically generated validation files are built based off an index of [feature.sub-feature](https://nornir-validate.readthedocs.io/en/latest/validations.html) ([example index files](https://github.com/sjhloco/nornir-validate/tree/main/src/nornir_validate/index_files)), there are few different ways in which these validation files can be generated:
 
-- ***No index file -*** Run the script specifying a change folder which has an no index file: Creates validation filea based off all features enabled on the device and saves them in the *val_files* folder (created if doesn't exist) of the change folder (1 file for each device).\
+- ***No index file -*** Run the script specifying a change folder which has an no index file: Creates validation file based off all features enabled on the device and saves them in the *val_files* folder (created if doesn't exist) of the change folder (1 file for each device).\
 `uv run main.py -n R1 -gvf "Chxxx - Test val"`
 
 - ***Default index file -*** Run the script specifying a change folder which has an index file (named *input_index.yml*): Creates validation files based off the indexes in the file (if the feature is enabled) and saves them in the *val_files* folder.\
