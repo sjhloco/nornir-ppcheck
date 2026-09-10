@@ -6,18 +6,18 @@ readme = "README.md"
 requires-python = ">=3.14"
 
 dependencies = [
-    "deepmerge>=2.0",
-    "nornir>=3.5.0",
-    "nornir-validate>=0.4.1",
-    "pyaml>=25.7.0",
+    "deepmerge>=3.0.1",
+    "nornir>=3.6.0",
+    "nornir-validate>=1.0.0",
+    "pyaml>=26.7.0",
 ]
 
 [dependency-groups]
 dev = [
     "ipdb>=0.13.13",
-    "mypy>=1.19.0",
-    "pytest>=9.0.2",
-    "ruff>=0.14.8",
+    "mypy>=2.3.1",
+    "pytest>=9.1.1",
+    "ruff>=0.16.7",
 ]
 
 [tool.mypy]
